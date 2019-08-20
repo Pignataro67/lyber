@@ -41,3 +41,37 @@ export function fetchDropOff(input) {
       dispatch({ type: 'DISPLAY_DROPOFFS', suggestedDropoffs }));
   };
 }
+
+export function convertLatLong(pickupLocation, dropoffLocation) {
+  console.log(location)
+  return async (dispatch) => {
+    await dispatch(_convertPickupLatLong(pickupLocation))
+    await dispatch(_convertDropoffLatLong(dropoffLocation))
+  }
+}
+  
+export function fetchUberEstimate(pickupLat, pickupLong, dropoffLat, dropoffLong) {
+  return (dispatch) => {
+    fetch(`RailsApi/uber?pickupLat=${pickupLat}&pickupLong=${pickupLong}&dropoffLat=${dropoffLat}&dropoffLong=${dropoffLong}`)
+    .then(res => res.json())
+    .then(data => dispatch({ type: 'ADD_UBER_ESTIMATES_TO_STATE', estimate: data.prices}))
+  };
+}
+  
+export function fetchLyftEstimate(pickupLat, pickupLong, dropoffLat, dropoffLong) {
+  return (dispatch) => {
+    dispatch({ type: 'FETCHING_LYFT_ESTIMATE'});
+    fetch(`RailsApi/lyft?pickupLat=${pickupLat}&pickupLong=${pickupLong}&dropoffLat=${dropoffLat}&dropoffLong=${dropoffLong}`)
+    .then(res => res.json())
+    .then(data => dispatch({ type: 'ADD_LYFT_ESTIMATES_TO_STATE', estimate: data.cost_estimates}))
+  };
+}
+  
+export function getMapboxKey() {
+  return (dispatch) => {
+    dispatch({ type: 'FETCHING_MAPBOX_KEY'});
+    fetch("RailsApi/confirm_route/mapbox")
+    .then(res => res.text())
+    .then(key => dispatch({ type: 'ADD_MAPBOX_KEY_TO_STATE', key }));
+  };
+} 
